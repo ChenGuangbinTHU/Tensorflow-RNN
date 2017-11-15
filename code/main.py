@@ -43,7 +43,9 @@ def build_vocab(path, data):
             else:
                 vocab[token] = 1
     vocab_list = _START_VOCAB + sorted(vocab, key=vocab.get, reverse=True)
-    print(len(vocab_list))
+    # print(vocab_list)
+    # exit(0)
+    # print(len(vocab_list))
     if len(vocab_list) > FLAGS.symbols:
         vocab_list = vocab_list[:FLAGS.symbols]
     else:
@@ -52,7 +54,23 @@ def build_vocab(path, data):
     print("Loading word vectors...")
     #todo: load word vector from 'vector.txt' to embed, where the value of each line is the word vector of the word in vocab_list
     embed = []
-    
+    vector_dict = {}
+    with open('./data/vector.txt', 'r') as f:
+        lines = f.readlines()
+        # print(len(lines))
+        for line in lines:
+            # print(line)  
+            tmp = line.split(' ', 1)
+            word = tmp[0]
+            vector = list(map(float, tmp[1].split(' ')))
+            vector_dict[word] = vector
+
+    for word in vocab_list:
+        if word in vector_dict:
+            embed.append(vector_dict[word])
+        else:
+            embed.append([0]*FLAGS.embed_units)
+
     embed = np.array(embed, dtype=np.float32)
     return vocab_list, embed
 
@@ -125,10 +143,10 @@ with tf.Session(config=config) as sess:
         data_dev = load_data(FLAGS.data_dir, 'dev.txt')
         data_test = load_data(FLAGS.data_dir, 'test.txt')
         # print(gen_batch_data(data_train))
-        with open('test.txt','w') as f:
-            data = gen_batch_data(data_train)['texts']
-            for i in data:
-                f.write(str(i) + '\n')
+        # with open('test.txt','w') as f:
+        #     data = gen_batch_data(data_train)['texts']
+        #     for i in data:
+        #         f.write(str(i) + '\n')
             
         vocab, embed = build_vocab(FLAGS.data_dir, data_train)
         # print(sess.run(constant_op.constant(vocab)))
@@ -139,7 +157,7 @@ with tf.Session(config=config) as sess:
                 FLAGS.units, 
                 FLAGS.layers,
                 FLAGS.labels,
-                None,
+                embed,
                 learning_rate=0.001)
         if FLAGS.log_parameters:
             model.print_parameters()
