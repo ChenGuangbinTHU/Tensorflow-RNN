@@ -45,12 +45,16 @@ class BasicRNNCell(tf.contrib.rnn.RNNCell):
             in_size = inputs.get_shape().as_list()[1] + state.get_shape().as_list()[1]
             # print(self.output_size)
             new_input = tf.concat([inputs, state], 1)
-            # print(new_input.get_shape())
+            # print(new_input.get_shape())a, b = session.run([self.outputs, self.states], input_feed)
+        # print(np.equal(a[:, -1, :],b))
+        # exit
             # print(in_size)
-            # W = tf.Variable(tf.truncated_normal([in_size, self.output_size]))
+            W = tf.get_variable('weight1',tf.truncated_normal([in_size, self.output_size]), tf.float32)
+            b = tf.get_variable('bias1', tf.constant([self.output_size]), tf.float32)
+            new_state = self._activation(tf.matmul(new_input, W) + b)
             # new_state = add_layer(new_input, in_size, self.output_size, self._activation)
             # print(new_state.get_shape())
-            new_state = tf.contrib.layers.fully_connected(new_input, self.output_size, self._activation)
+            # new_state = tf.contrib.layers.fully_connected(new_input, self.output_size, self._activation)
             # pass
         return new_state, new_state
 

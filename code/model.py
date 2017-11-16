@@ -55,13 +55,17 @@ class RNN(object):
 
         
         if num_layers == 1:
-            cell = BasicRNNCell(num_units)
-        
+            # cell = BasicRNNCell(num_units)
+            cell = tf.nn.rnn_cell.BasicRNNCell(num_units)
 
         outputs, states = dynamic_rnn(cell, self.embed_input, self.texts_length, dtype=tf.float32, scope="rnn")
-
+        print(tf.equal(outputs[:,-1,:],states))
+        print(outputs.get_shape())
+        self.outputs = outputs
+        self.states = states
         #todo: implement unfinished networks
         print(states.get_shape())
+        # exit(0)
         logits = tf.contrib.layers.fully_connected(states, num_labels, None)
         print(logits.get_shape())
 
@@ -96,7 +100,12 @@ class RNN(object):
                 self.texts_length: data['texts_length'],
                 self.labels: data['labels']}
         output_feed = [self.loss, self.accuracy, self.gradient_norm, self.update]
+        # print(data['texts'])
+        # exit(0)
         if summary:
             output_feed.append(self.merged_summary_op)
         # print(sess.run(self.texts))
+        # a, b = session.run([self.outputs, self.states], input_feed)
+        # print(np.equal(a[:, -1, :],b))
+        # exit(0)
         return session.run(output_feed, input_feed)
