@@ -55,7 +55,7 @@ class GRUCell(tf.contrib.rnn.RNNCell):
             new_input = tf.concat([inputs, state], 1)
             zt = tf.layers.dense(new_input, self.output_size, tf.sigmoid, bias_initializer=tf.constant_initializer(1.0))
             rt = tf.layers.dense(new_input, self.output_size, tf.sigmoid, bias_initializer=tf.constant_initializer(1.0))
-            ht_hat = self._activation(tf.layer.dense(tf.concat([inputs, rt*state], 1), self.output_size))
+            ht_hat = self._activation(tf.layers.dense(tf.concat([inputs, rt*state], 1), self.output_size))
             new_h = (1-zt) * state + zt * ht_hat
             # pass
         return new_h, new_h

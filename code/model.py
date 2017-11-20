@@ -55,7 +55,7 @@ class RNN(object):
 
         
         if num_layers == 1:
-            cell = BasicLSTMCell(num_units)
+            cell = GRUCell(num_units)
             # cell = tf.nn.rnn_cell.BasicRNNCell(num_units)
             # cell = tf.nn.rnn_cell.BasicLSTMCell(num_units)
 
@@ -67,7 +67,7 @@ class RNN(object):
         #todo: implement unfinished networks
         # print(states.get_shape())
         # exit(0)
-        logits = tf.contrib.layers.fully_connected(states[1], num_labels, None)
+        logits = tf.contrib.layers.fully_connected(states, num_labels, None)
         print(logits.get_shape())
 
         self.loss = tf.reduce_sum(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=self.labels, logits=logits), name='loss')
