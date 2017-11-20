@@ -15,16 +15,10 @@ class BasicRNNCell(tf.contrib.rnn.RNNCell):
     def output_size(self):
         return self._num_units
 
-    #word2vec is None now !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     def __call__(self, inputs, state, scope=None):
         with tf.variable_scope(scope or "basic_rnn_cell", reuse=self._reuse):
             in_size = inputs.get_shape().as_list()[1] + state.get_shape().as_list()[1]
             new_input = tf.concat([inputs, state], 1)
-
-            # W = tf.get_variable('weight1',tf.truncated_normal([in_size, self.output_size]), tf.float32)
-            # b = tf.get_variable('bias1', tf.constant([self.output_size]), tf.float32)
-            # print(333)
-            # new_state = self._activation(tf.matmul(new_input, W) + b)
             new_state = tf.layers.dense(new_input, self.output_size, self._activation)
 
         return new_state, new_state
@@ -82,10 +76,6 @@ class BasicLSTMCell(tf.contrib.rnn.RNNCell):
             c, h = state
             in_size = inputs.get_shape().as_list()[1] + h.get_shape().as_list()[1]
             new_input = tf.concat([inputs, h], 1)
-            # W = tf.get_variable('weight1', tf.truncated_normal([in_size, 4 * self.output_size]), tf.float32)
-            # b = tf.get_variable('bias1', tf.constant(4 * [self.output_size]), tf.float32)
-            # tmp_output = tf.matmul(inputs, W) + b
-            # split_output = tf.split(tmp_output, 4 , 1)
             ft = tf.layers.dense(new_input, self.output_size, tf.sigmoid, bias_initializer=tf.constant_initializer(self._forget_bias))
             ot = tf.layers.dense(new_input, self.output_size, tf.sigmoid)
             it = tf.layers.dense(new_input, self.output_size, tf.sigmoid)

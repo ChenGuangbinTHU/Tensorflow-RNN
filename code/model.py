@@ -21,7 +21,7 @@ class RNN(object):
             learning_rate=0.5,
             max_gradient_norm=5.0):
         #todo: implement placeholders
-        self.texts = tf.placeholder(tf.string, [16,None], 'texts')  # shape: batch*len
+        self.texts = tf.placeholder(tf.string, [None,None], 'texts')  # shape: batch*len
         self.texts_length = tf.placeholder(tf.int64,[None], 'texts_length')  # shape: batch
         self.labels = tf.placeholder(tf.int64,[None], 'labels')  # shape: batch
         
@@ -56,19 +56,18 @@ class RNN(object):
         
         if num_layers == 1:
             cell = GRUCell(num_units)
-            # cell = tf.nn.rnn_cell.BasicRNNCell(num_units)
-            # cell = tf.nn.rnn_cell.BasicLSTMCell(num_units)
 
         outputs, states = dynamic_rnn(cell, self.embed_input, self.texts_length, dtype=tf.float32, scope="rnn")
-        print(tf.equal(outputs[:,-1,:],states))
-        print(outputs.get_shape())
-        self.outputs = outputs
-        self.states = states
         #todo: implement unfinished networks
         # print(states.get_shape())
         # exit(0)
-        logits = tf.contrib.layers.fully_connected(states, num_labels, None)
+        a = tf.nn.dropout(states, 1.0)
+        l1 = tf.layers.dense(inputs = a, units = 128, activation = tf.nn.relu)
+        logits = tf.layers.dense(inputs = l1, units = num_labels)
+
+        # logits = tf.layers.dense(states, num_labels, None)
         print(logits.get_shape())
+
 
         self.loss = tf.reduce_sum(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=self.labels, logits=logits), name='loss')
         mean_loss = self.loss / tf.cast(tf.shape(self.labels)[0], dtype=tf.float32)
